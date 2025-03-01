@@ -22,7 +22,6 @@ jobs:
 
       - name: Run SonarQube Analysis
         run: |
-          sonar-scanner \
             -Dsonar.projectKey=Getdzidon_test-sonar \
             -Dsonar.organization=getdzidon \
             -Dsonar.host.url=https://sonarcloud.io \
