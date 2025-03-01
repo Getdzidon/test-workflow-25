@@ -24,6 +24,6 @@ jobs:
         run: |
           sonar-scanner \
             -Dsonar.projectKey=test-sonar \
-            -Dsonar.organization="Donatus Dee" \
+            -Dsonar.organization=getdzidon \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }}
