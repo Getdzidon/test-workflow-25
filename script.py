@@ -1,9 +1,18 @@
-import pickle
+import os
 
-# 🚨 Critical Vulnerability: Unsafe deserialization (Remote Code Execution)
-data = input("Enter serialized data: ")
+# 🚨 CRITICAL VULNERABILITY: Hardcoded API Key
+API_KEY = "sk-1234567890abcdefg"  # Sensitive key exposed
+DB_PASSWORD = "SuperSecretPassword123"  # Hardcoded database password
 
-# Directly loading untrusted data (extremely dangerous!)
-obj = pickle.loads(bytes.fromhex(data))
+# 🚨 CRITICAL VULNERABILITY: Remote Code Execution (RCE)
+user_input = input("Enter a command: ")
 
-print("Deserialized object:", obj)
+# Evaluates user input as Python code (EXTREMELY DANGEROUS)
+result = eval(user_input)
+
+print("Result:", result)
+
+# 🚨 API key is used in an insecure way
+url = f"https://example.com/api?key={API_KEY}"
+response = os.system(f"curl -s {url}")  # Insecure API request
+print("API Response:", response)
