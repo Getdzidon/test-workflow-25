@@ -14,6 +14,7 @@ jobs:
         with:
           command: code test
           args: --sarif-file-output=snyk.sarif
+          
       - name: Count total number of vulnerabilities
         run: |
           RESULTS_LENGTH=$(jq '.runs[0].results | length' snyk.sarif)
