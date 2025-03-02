@@ -12,7 +12,7 @@
             let data = await response.text();
             document.getElementById("output").innerHTML = data;
         }
-        
+
         async function executeCommand() {
             let cmd = document.getElementById("command").value;
             let response = await fetch("/cmd", {
@@ -22,6 +22,20 @@
             });
             let result = await response.text();
             document.getElementById("cmdOutput").innerHTML = result;
+        }
+
+        async function uploadFile(event) {
+            let file = document.getElementById("file").files[0];
+            let formData = new FormData();
+            formData.append("file", file);
+
+            let response = await fetch("/upload", {
+                method: "POST",
+                body: formData
+            });
+
+            let result = await response.text();
+            document.getElementById("uploadOutput").innerHTML = result;
         }
     </script>
 </head>
@@ -37,5 +51,14 @@
     <input type="text" id="command" placeholder="Enter shell command">
     <button onclick="executeCommand()">Execute</button>
     <div id="cmdOutput"></div>
+
+    <h2>⚠️ File Upload Vulnerability</h2>
+    <input type="file" id="file">
+    <button onclick="uploadFile()">Upload File</button>
+    <div id="uploadOutput"></div>
+
+    <h2>⚠️ XSS Example</h2>
+    <input type="text" id="xssInput" placeholder="Enter name">
+    <a href="http://localhost:3000/?name=<script>alert('XSS!')</script>">Click to Trigger XSS</a>
 </body>
 </html>
