@@ -26,6 +26,8 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true  # Allow the action to fail without failing the job
+      
+      - name: Run Snyk Security Scan (Test) and Snyk Monitor
         run: |
           snyk test --all-projects --json  # Run Snyk test to find vulnerabilities
           snyk monitor --all-projects       # Push results to the Snyk dashboard for monitoring
