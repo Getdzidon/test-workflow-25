@@ -26,5 +26,5 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true  # Allow the action to fail without failing the job
-          run: |
-            snyk test --all-projects --json  # Running Snyk test with json output
+        with:
+          command: snyk test --all-projects --json  # Running Snyk test with json output
