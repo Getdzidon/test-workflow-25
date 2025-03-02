@@ -21,13 +21,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run Snyk Security Scan
+      - name: Run Snyk Security Scan (Test)
+        run: snyk test --all-projects --json  # Run Snyk test to find vulnerabilities
+
+      - name: Run Snyk Monitor
+        run: snyk monitor --all-projects  # Push results to the Snyk dashboard for monitoring
+
+      - name: Monitor with Snyk Action
         uses: snyk/actions/node@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        continue-on-error: true  # Allow the action to fail without failing the job
-      
-      - name: Run Snyk Security Scan (Test) and Snyk Monitor
-        run: |
-          snyk test --all-projects --json  # Run Snyk test to find vulnerabilities
-          snyk monitor --all-projects       # Push results to the Snyk dashboard for monitoring
