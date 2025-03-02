@@ -2,50 +2,45 @@ import os
 import pickle
 import sqlite3
 import subprocess
+from flask import Flask, request
 
-# 🚨 CRITICAL VULNERABILITY 1: Hardcoded API Key & Database Credentials
-API_KEY = "sk-CRITICAL-LEAKED-KEY-123456"
-DB_PASSWORD = "P@ssw0rd123!"
+app = Flask(__name__)
 
-# 🚨 CRITICAL VULNERABILITY 2: Remote Code Execution via Untrusted Deserialization
-def load_data(serialized_data):
-    return pickle.loads(serialized_data)  # 🔥 Arbitrary code execution possible!
+# 🚨 CRITICAL VULNERABILITY 1: Hardcoded API Key & Password
+API_KEY = "sk-CRITICAL-LEAKED-KEY-987654"
+DB_PASSWORD = "Admin123!"
 
-# 🚨 CRITICAL VULNERABILITY 3: SQL Injection (No Input Sanitization)
-def get_user_info(username):
+# 🚨 CRITICAL VULNERABILITY 2: Remote Code Execution via HTTP Request
+@app.route("/rce", methods=["POST"])
+def remote_execute():
+    code = request.form.get("code")  # User-provided code
+    return str(eval(code))  # 🔥 Full RCE via exposed HTTP endpoint!
+
+# 🚨 CRITICAL VULNERABILITY 3: SQL Injection
+@app.route("/user", methods=["GET"])
+def get_user():
+    username = request.args.get("username")
+
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
     
-    # 🔥 User-controlled SQL injection (no parameterized query)
+    # 🔥 Exploitable SQL injection
     query = f"SELECT * FROM users WHERE username = '{username}'"
     cursor.execute(query)
 
-    return cursor.fetchall()
+    return str(cursor.fetchall())
 
 # 🚨 CRITICAL VULNERABILITY 4: Command Injection
+@app.route("/cmd", methods=["POST"])
 def execute_command():
-    user_input = input("Enter system command: ")
+    user_input = request.form.get("cmd")
     
-    # 🔥 Full shell execution with unsanitized input
-    subprocess.call(f"bash -c '{user_input}'", shell=True)
+    # 🔥 Full system compromise possible!
+    result = subprocess.check_output(f"bash -c '{user_input}'", shell=True)
+    return result.decode()
 
-# 🚨 Execution Path (Trigger all vulnerabilities)
 if __name__ == "__main__":
-    print("⚠️  Running highly vulnerable script...")
+    print(f"⚠️  Running vulnerable server on http://localhost:5000")
+    print(f"⚠️  API Key: {API_KEY}")
 
-    # 1. Leaking sensitive credentials
-    print(f"Using API Key: {API_KEY}")
-
-    # 2. Deserialization of untrusted data
-    malicious_payload = input("Enter hex-encoded pickle data: ")
-    try:
-        load_data(bytes.fromhex(malicious_payload))  # RCE Exploit Here
-    except Exception as e:
-        print("Deserialization failed:", e)
-
-    # 3. Exploitable SQL query
-    user = input("Enter username: ")
-    print("User Info:", get_user_info(user))  # SQL Injection Exploit Here
-
-    # 4. Full System Command Execution
-    execute_command()  # Command Injection Exploit Here
+    app.run(host="0.0.0.0", port=5000, debug=True)  # Debug mode exposes even more risk!
