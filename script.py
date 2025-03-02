@@ -1,7 +1,9 @@
-import os
+import pickle
 
-# Get user input for a file to list
-filename = input("Enter the filename to list: ")
+# 🚨 Critical Vulnerability: Unsafe deserialization (Remote Code Execution)
+data = input("Enter serialized data: ")
 
-# 🚨 Critical vulnerability: Command Injection!
-os.system(f"ls -l {filename}")
+# Directly loading untrusted data (extremely dangerous!)
+obj = pickle.loads(bytes.fromhex(data))
+
+print("Deserialized object:", obj)
