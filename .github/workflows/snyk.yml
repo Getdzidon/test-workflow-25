@@ -28,6 +28,6 @@ jobs:
         run: npm install  # Install project dependencies
 
       - name: Run Snyk Security Scan (Test and Monitor)
-        uses: snyk/actions/node@v1  # Use the Snyk Action for both test and monitor
+        uses: snyk/actions/node@v4  # Use the Snyk Action for both test and monitor
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
