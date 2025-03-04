@@ -29,5 +29,5 @@ jobs:
 
     - name: Publish code to GHCR
       run: |
-        docker build -t ghcr.io/jomacs-it/test-app:latest . 
-        docker push ghcr.io/jomacs-it/test-app:latest 
+        docker build -t ghcr.io/getdzidon/test-app:latest . 
+        docker push ghcr.io/getdzidon/test-app:latest 
