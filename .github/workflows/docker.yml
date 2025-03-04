@@ -6,7 +6,7 @@ on:
 env:
     CONTAINER_REGISTRY: ghcr.io
     IMAGE_NAME: test-app2
-    TAG: ${{ github.event.pull_request.number }}
+    TAG: ${{ github.sha }}
     GitHub_User: getdzidon
 
 permissions:
@@ -31,5 +31,5 @@ jobs:
 
     - name: Publish code to GHCR
       run: |
-        docker build -t ${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_User }}/${{ env.IMAGE_NAME }}:${{ github.event.pull_request.number }} . 
-        docker push ${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_User }}/${{ env.IMAGE_NAME }}:${{ github.event.pull_request.number }} 
+        docker build -t ${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_User }}/${{ env.IMAGE_NAME }}:${{ env.TAG }} . 
+        docker push ${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_User }}/${{ env.IMAGE_NAME }}:${{ env.TAG }} 
