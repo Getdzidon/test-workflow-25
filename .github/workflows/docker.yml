@@ -32,7 +32,7 @@ jobs:
     - name: Publish code to GHCR
       run: |
         docker build -t ${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_User }}/${{ env.IMAGE_NAME }}:${{ env.TAG }} . 
-        docker push ${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_Use }}/${{ env.IMAGE_NAME }}:${{ env.TAG }} 
+        docker push ${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_User }}/${{ env.IMAGE_NAME }}:${{ env.TAG }} 
 
 
     # ✅ Send Slack Notification on Success
@@ -40,7 +40,7 @@ jobs:
       if: success()
       run: |
         response=$(curl -X POST -H 'Content-type: application/json' --data '{
-          "text": "⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️\n\n✅ *GHCR Workflow Completed Successfully!* 🎉\n🚀 *Repository:* ${{ github.repository }}\n🔗 *Commit:* <${{ github.event.head_commit.url }}|View Commit>\n📦 *Image:* ${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_User }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}\n\n⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️"
+          "text": "🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩\n✅ *GHCR Workflow Completed Successfully!* 🎉\n🚀 *Repository:* ${{ github.repository }}\n🔗 *Commit:* <${{ github.event.head_commit.url }}|View Commit>\n📦 *Image:* ${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_User }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}\n🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩"
         }' ${{ secrets.SLACK_WEBHOOK_URL }} 2>&1)
         echo "Slack Response: $response"
 
@@ -49,6 +49,6 @@ jobs:
       if: failure()
       run: |
         response=$(curl -X POST -H 'Content-type: application/json' --data '{
-          "text": "⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️\n\n❌ *GHCR Workflow Failed!* 🚨\n💥 *Repository:* ${{ github.repository }}\n🔗 *Commit:* <${{ github.event.head_commit.url }}|View Commit>\n⚠️ Please check the logs for details.\n\n⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️"
+          "text": "🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥\n❌ *GHCR Workflow Failed!* 🚨\n💥 *Repository:* ${{ github.repository }}\n🔗 *Commit:* <${{ github.event.head_commit.url }}|View Commit>\n⚠️ Please check the logs for details.\n🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥"
         }' ${{ secrets.SLACK_WEBHOOK_URL }} 2>&1)
         echo "Slack Response: $response"
