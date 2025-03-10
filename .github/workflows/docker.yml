@@ -35,21 +35,28 @@ jobs:
         docker push ${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_User }}/${{ env.IMAGE_NAME }}:${{ env.TAG }} 
 
 
-  # ✅ NEW JOB: Fixing the Slack Notification Issue
-  notify_slack:
-    runs-on: ubuntu-latest
-    needs: docker_build
-    if: always()
-    steps:
-      - name: Send Slack Notification
-        run: |
-          timestamp=$(date +%s)  # Generate a unique timestamp to avoid message merging
-          
-          if [ "${{ job.status }}" == "success" ]; then
-            curl -X POST -H 'Content-type: application/json' --data '{
-              "text": "✅ *GHCR Workflow Completed Successfully!* 🎉\n🚀 *Repository:* `${{ github.repository }}`\n🔗 *Commit:* <${{ github.event.head_commit.url }}|View Commit>\n📦 *Image:* `${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_User }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}`\n\n*Timestamp:* '"$timestamp"'"
-            }' ${{ secrets.SLACK_WEBHOOK_URL }}
-          else
-            curl -X POST -H 'Content-type: application/json' --data '{
-              "text": "❌ *GHCR Workflow Failed!* 🚨\n💥 *Repository:* `${{ github.repository }}`\n🔗 *Commit:* <${{ github.event.head_commit.url }}|View Commit>\n⚠️ Please check the logs for details.\n\n*Timestamp:* '"$timestamp"'"
-            }' ${{ secrets.SLACK_WEBHOOK_URL }}
+    # ✅ Send Slack Notification on Success
+    - name: Send Slack Notification (Success)
+      if: success()
+      run: |
+        set -e  # Stop execution on any error
+        timestamp=$(date +%s)  # Generate a unique timestamp to force Slack to treat messages separately
+
+        response=$(curl -X POST -H 'Content-type: application/json' --data '{
+          "text": "✅ *GHCR Workflow Completed Successfully!* 🎉\n🚀 *Repository:* `${{ github.repository }}`\n🔗 *Commit:* <${{ github.event.head_commit.url }}|View Commit>\n📦 *Image:* `${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_User }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}`\n\n⏳ *Timestamp:* '"$timestamp"'"
+        }' ${{ secrets.SLACK_WEBHOOK_URL }} 2>&1)
+
+        echo "Slack Response: $response"
+
+    # 🔴 Send Slack Notification on Failure
+    - name: Send Slack Notification (Failure)
+      if: failure()
+      run: |
+        set -e
+        timestamp=$(date +%s)
+
+        response=$(curl -X POST -H 'Content-type: application/json' --data '{
+          "text": "❌ *GHCR Workflow Failed!* 🚨\n💥 *Repository:* `${{ github.repository }}`\n🔗 *Commit:* <${{ github.event.head_commit.url }}|View Commit>\n⚠️ Please check the logs for details.\n\n⏳ *Timestamp:* '"$timestamp"'"
+        }' ${{ secrets.SLACK_WEBHOOK_URL }} 2>&1)
+
+        echo "Slack Response: $response"
