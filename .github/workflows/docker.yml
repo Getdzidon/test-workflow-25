@@ -35,7 +35,7 @@ jobs:
         docker push ${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_User }}/${{ env.IMAGE_NAME }}:${{ env.TAG }} 
 
 
-# ✅ Send Slack Notification on Success
+# ✅ Send Slack Notification on Success.
     - name: Send Slack Notification (Success)
       if: success()
       run: |
