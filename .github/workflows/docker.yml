@@ -6,7 +6,7 @@ on:
 env:
     CONTAINER_REGISTRY: ghcr.io
     IMAGE_NAME: test-app2
-    TAG: ${{ github.sha }}
+    TAG: latest
     GitHub_User: getdzidon
 
 permissions:
@@ -33,3 +33,20 @@ jobs:
       run: |
         docker build -t ${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_User }}/${{ env.IMAGE_NAME }}:${{ env.TAG }} . 
         docker push ${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_User }}/${{ env.IMAGE_NAME }}:${{ env.TAG }} 
+
+
+# ✅ Send Slack Notification on Success
+    - name: Send Slack Notification (Success)
+      if: success()
+      run: |
+        curl -X POST -H 'Content-type: application/json' --data '{
+          "text": "✅ *GHCR Workflow Completed Successfully!* 🎉\n🚀 *Repository:* `${{ github.repository }}`\n🔗 *Commit:* <${{ github.event.head_commit.url }}|View Commit>\n📦 *Image:* `${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_User }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}`
+        }' ${{ secrets.SLACK_WEBHOOK_URL }}
+
+# 🔴 Send Slack Notification on Failure
+    - name: Send Slack Notification (Failure)
+      if: failure()
+      run: |
+        curl -X POST -H 'Content-type: application/json' --data '{
+          "text": "❌ *GHCR Workflow Failed!* 🚨\n💥 *Repository:* `${{ github.repository }}`\n🔗 *Commit:* <${{ github.event.head_commit.url }}|View Commit>\n⚠️ Please check the logs for details."
+        }' ${{ secrets.SLACK_WEBHOOK_URL }}
