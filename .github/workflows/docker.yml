@@ -35,20 +35,20 @@ jobs:
         docker push ${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_User }}/${{ env.IMAGE_NAME }}:${{ env.TAG }} 
 
 
-    # ✅ Send Slack Notification on Success.
-    - name: Send Slack Notification (Success)
-      if: success()
-      run: |
-        response=$(curl -X POST -H 'Content-type: application/json' --data '{
-          "text": "✅ *GHCR Workflow Completed Successfully!* 🎉\n🚀 *Repository:* `${{ github.repository }}`\n🔗 *Commit:* <${{ github.event.head_commit.url }}|View Commit>\n📦 *Image:* `${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_User }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}`"
-        }' ${{ secrets.SLACK_WEBHOOK_URL }} 2>&1)
-        echo "Slack Response: $response"
-
-    # 🔴 Send Slack Notification on Failure
-    - name: Send Slack Notification (Failure)
-      if: failure()
-      run: |
-        response=$(curl -X POST -H 'Content-type: application/json' --data '{
-          "text": "❌ *GHCR Workflow Failed!* 🚨\n💥 *Repository:* `${{ github.repository }}`\n🔗 *Commit:* <${{ github.event.head_commit.url }}|View Commit>\n⚠️ Please check the logs for details."
-        }' ${{ secrets.SLACK_WEBHOOK_URL }} 2>&1)
-        echo "Slack Response: $response"
+  # ✅ NEW JOB: Ensure Slack Messages Are Not Merged
+  notify_slack:
+    runs-on: ubuntu-latest
+    needs: docker_build
+    if: always()
+    steps:
+      - name: Send Slack Notification
+        run: |
+          timestamp=$(date +%s)  # 🕒 Unique timestamp to force separate messages
+          if [ "${{ job.status }}" == "success" ]; then
+            curl -X POST -H 'Content-type: application/json' --data '{
+              "text": "✅ *GHCR Workflow Completed Successfully!* 🎉\n🚀 *Repository:* `${{ github.repository }}`\n🔗 *Commit:* <${{ github.event.head_commit.url }}|View Commit>\n📦 *Image:* `${{ env.CONTAINER_REGISTRY }}/${{ env.GitHub_User }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}`\n\nTimestamp: '"$timestamp"'"
+            }' ${{ secrets.SLACK_WEBHOOK_URL }}
+          else
+            curl -X POST -H 'Content-type: application/json' --data '{
+              "text": "❌ *GHCR Workflow Failed!* 🚨\n💥 *Repository:* `${{ github.repository }}`\n🔗 *Commit:* <${{ github.event.head_commit.url }}|View Commit>\n⚠️ Please check the logs for details.\n\nTimestamp: '"$timestamp"'"
+            }' ${{ secrets.SLACK_WEBHOOK_URL }}
